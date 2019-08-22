@@ -336,10 +336,14 @@ void CmdProcessor::processServerCmd(folly::StringPiece cmd) {
         if (spaceName && !spaceName->empty()) {
             curSpaceName_ = std::move(*spaceName);
         }
-        printResult(resp);
-        if (resp.get_rows() != nullptr) {
+        if (resp.get_rows() && !resp.get_rows()->empty()) {
+            printResult(resp);
             std::cout << "Got " << resp.get_rows()->size()
                       << " rows (Time spent: "
+                      << resp.get_latency_in_us() << "/"
+                      << dur.elapsedInUSec() << " us)\n";
+        } else if (resp.get_rows() && resp.get_rows()->empty()) {
+            std::cout << "Empty set (Time spent: "
                       << resp.get_latency_in_us() << "/"
                       << dur.elapsedInUSec() << " us)\n";
         } else {
